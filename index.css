@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Lato', sans-serif;
+
+  /* Chic, Modern Beauty Palette */
+  /* Background: Softest Rose White */
+  --background: 340 33% 98%;
+  /* Foreground: Slate Charcoal */
+  --foreground: 255 10% 25%;
+
+  /* Primary: Sophisticated Rose Gold/Dusty Pink */
+  --primary: 342 45% 65%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary: Soft Peach/Nude */
+  --secondary: 18 45% 94%;
+  --secondary-foreground: 255 10% 25%;
+
+  /* Muted: Cool Gray */
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+
+  /* Accent: Muted Gold for highlights */
+  --accent: 38 45% 90%;
+  --accent-foreground: 255 10% 25%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 340 20% 92%;
+  --input: 340 20% 92%;
+  --ring: 342 45% 65%;
+
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-medium text-foreground tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 rounded-full font-medium bg-primary text-primary-foreground 
+           shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 
+           hover:-translate-y-0.5 active:translate-y-0 active:shadow-md 
+           transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20;
+  }
+}
