@@ -29,8 +29,8 @@ export const manicures = pgTable("manicures", {
   sessionId: text("session_id").notNull(),
 });
 
-export const insertPolishSchema = createInsertSchema(polishes).omit({ id: true });
-export const insertManicureSchema = createInsertSchema(manicures).omit({ id: true });
+export const insertPolishSchema = createInsertSchema(polishes).omit({ id: true, sessionId: true });
+export const insertManicureSchema = createInsertSchema(manicures).omit({ id: true, sessionId: true });
 
 export type Polish = typeof polishes.$inferSelect;
 export type InsertPolish = z.infer<typeof insertPolishSchema>;
