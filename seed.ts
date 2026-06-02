@@ -3,8 +3,8 @@ import { polishes } from "../shared/schema";
 
 async function seed() {
   console.log("Seeding database...");
-  
-  await db.insert(polishes).values([
+
+  const rows = await db.insert(polishes).values([
     {
       brand: "OPI",
       name: "Bubble Bath",
@@ -35,9 +35,13 @@ async function seed() {
       color: "#99EDC3",
       notes: "Perfect mint green",
     }
-  ]);
+  ]).returning();
 
-  console.log("Seeding complete!");
+  if (rows.length === 0) {
+    throw new Error("Seeding returned no rows — insert may have failed silently");
+  }
+
+  console.log(`Seeding complete! Inserted ${rows.length} polishes.`);
   process.exit(0);
 }
 
