@@ -194,10 +194,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .dbtn:hover{border-color:var(--pink);color:white;}
 .dbtn.active{background:var(--hot);border-color:var(--hot);color:white;}
 .nail-design-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;}
-/* French tip */
-.design-french .nail-design-overlay{background:linear-gradient(to top,rgba(255,255,255,.85) 0%,rgba(255,255,255,.85) 28%,transparent 28%);}
-/* Polka dots */
-.design-polka .nail-design-overlay{background:radial-gradient(circle 3px,rgba(255,255,255,.7) 70%,transparent 70%) 5px 5px/10px 10px;}
+/* French tip — base overridden to nude in JS; overlay colored dynamically */
+.design-french .nail-design-overlay{border-radius:inherit;}
+/* Polka dots — dot color set dynamically in JS */
+.design-polka .nail-design-overlay{border-radius:inherit;}
 /* Stripes */
 .design-stripes .nail-design-overlay{background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.35) 3px,rgba(255,255,255,.35) 5px);}
 /* Ombre */
@@ -568,6 +568,10 @@ footer{background:var(--deep);color:white;padding:80px 56px;text-align:center;}
           <button class="dbtn" onclick="selDesign(this,'Marble')">Marble</button>
         </div>
       </div>
+      <div class="ctrl-group" id="dotColorGroup" style="display:none">
+        <span class="ctrl-label">Dot Color</span>
+        <div class="color-row" id="dotColorRow"></div>
+      </div>
       <div class="ctrl-group">
         <span class="ctrl-label">Finish</span>
         <div class="finish-row">
@@ -650,7 +654,7 @@ const HEIGHTS={Almond:[40,52,58,50,36],Oval:[38,50,56,48,34],Square:[36,48,54,46
 const RADIUS={Almond:'8px 8px 3px 3px',Oval:'50% 50% 3px 3px',Square:'3px 3px 0 0',Coffin:'50% 50% 0 0/30% 30% 0 0',Stiletto:'50% 50% 3px 3px',Squoval:'6px 6px 0 0',Ballerina:'50% 50% 4px 4px/20% 20% 4px 4px',Lipstick:'0 50% 0 0'};
 
 // ── STATE ──
-let selColor=COLORS[0], curShape='Almond', curSize='S', curFinish='Glossy', curDesign='Solid';
+let selColor=COLORS[0], curShape='Almond', curSize='S', curFinish='Glossy', curDesign='Solid', dotColor=null;
 const DESIGN_CLASSES={Solid:'',"French Tip":'design-french',"Polka Dots":'design-polka',Stripes:'design-stripes',"Ombré":'design-ombre',Glitter:'design-glitter',Marble:'design-marble'};
 let cart=[], stripe, cardElement;
 
@@ -698,7 +702,7 @@ function renderSwatches(){
     sw.className='csw'+(i===0&&selColor===c?' active':'');
     if(selColor.id===c.id) sw.classList.add('active');
     sw.style.background=c.grad; sw.title=c.name;
-    sw.onclick=()=>{ selColor=c; document.querySelectorAll('.csw').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); updatePreview(); };
+    sw.onclick=()=>{ selColor=c; row.querySelectorAll('.csw').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); updatePreview(); };
     row.appendChild(sw);
   });
 }
@@ -707,7 +711,22 @@ renderSwatches();
 // ── CUSTOMIZER ──
 function selShape(el,v){ document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); curShape=v; updatePreview(); }
 function selSize(el,v){ document.querySelectorAll('.szb').forEach(b=>b.classList.remove('active')); el.classList.add('active'); curSize=v; updatePreview(); }
-function selDesign(el,v){ document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); curDesign=v; updatePreview(); }
+function selDesign(el,v){
+  document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); curDesign=v;
+  const dotGroup=document.getElementById('dotColorGroup');
+  if(v==='Polka Dots'){ dotGroup.style.display=''; if(!dotColor) dotColor=COLORS.length>2?COLORS[2]:COLORS[0]; renderDotSwatches(); }
+  else { dotGroup.style.display='none'; }
+  updatePreview();
+}
+function renderDotSwatches(){
+  const row=document.getElementById('dotColorRow'); row.innerHTML='';
+  COLORS.forEach(c=>{
+    const sw=document.createElement('div'); sw.className='csw'+(dotColor&&dotColor.id===c.id?' active':'');
+    sw.style.background=c.grad; sw.title=c.name;
+    sw.onclick=()=>{ dotColor=c; document.querySelectorAll('#dotColorRow .csw').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); updatePreview(); };
+    row.appendChild(sw);
+  });
+}
 function selFinish(el,v){
   document.querySelectorAll('.ftoggle').forEach(b=>b.classList.remove('active')); el.classList.add('active');
   curFinish=v; updatePreview();
@@ -717,9 +736,11 @@ function updatePreview(){
   const r=RADIUS[curShape]||RADIUS.Almond;
   const finishClass = curFinish==='Matte' ? 'finish-matte' : 'finish-glossy';
   const designClass = DESIGN_CLASSES[curDesign]||'';
+  const isFrench = curDesign==='French Tip';
+  const isPolka = curDesign==='Polka Dots';
   for(let i=1;i<=5;i++){
     const n=document.getElementById('pn'+i);
-    n.style.background=selColor.grad;
+    n.style.background = isFrench ? 'linear-gradient(135deg,#F5D6CC,#E8C4B8)' : selColor.grad;
     n.style.height=h[i-1]+'px';
     n.style.borderRadius=r;
     n.className='pn '+finishClass+(designClass?' '+designClass:'');
@@ -727,8 +748,12 @@ function updatePreview(){
     let overlay=n.querySelector('.nail-design-overlay');
     if(designClass){ if(!overlay){overlay=document.createElement('div');overlay.className='nail-design-overlay';n.appendChild(overlay);} }
     else if(overlay){ overlay.remove(); }
+    if(isFrench && overlay){ const tc=selColor.hex||selColor.grad; overlay.style.background=`radial-gradient(ellipse 140% 80% at 50% -20%, transparent 64%, ${tc} 65%)`; }
+    else if(isPolka && overlay){ const dc=dotColor?dotColor.hex:'#FFFFFF'; overlay.style.background=`radial-gradient(circle 3px,${dc} 70%,transparent 70%) 5px 5px/10px 10px`; }
+    else if(overlay){ overlay.style.background=''; }
   }
-  const designLabel = curDesign==='Solid'?'':(` · ${curDesign}`);
+  let designLabel = curDesign==='Solid'?'':(` · ${curDesign}`);
+  if(isPolka && dotColor) designLabel+=` (${dotColor.name} dots)`;
   document.getElementById('prevLabel').textContent=`${selColor.name} · ${curShape} · ${curSize} · ${curFinish}${designLabel}`;
   document.getElementById('prevPrice').textContent='$'+selColor.price;
 }
@@ -740,7 +765,8 @@ function addPreset(name,price){
   syncCart(); openCart(); toast(`${name} added to bag ♡`);
 }
 function addCustom(){
-  const designDetail = curDesign==='Solid'?'':(` · ${curDesign}`);
+  let designDetail = curDesign==='Solid'?'':(` · ${curDesign}`);
+  if(curDesign==='Polka Dots' && dotColor) designDetail+=` (${dotColor.name} dots)`;
   cart.push({name:'Custom Set',details:`${selColor.name} · ${curShape} · Size ${curSize} · ${curFinish}${designDetail}`,price:selColor.price});
   syncCart(); openCart(); toast('Custom set added to bag ♡');
 }
