@@ -8,25 +8,52 @@ async function seed() {
   console.log("Importing nail polishes from CSV...");
 
   const csvPath = path.join(process.cwd(), "attached_assets/Nail_Polishes_💖_-_Sheet1_1767649926679.csv");
-  const fileContent = fs.readFileSync(csvPath, "utf-8");
 
-  const records = parse(fileContent, {
-    columns: true,
-    skip_empty_lines: true,
+  if (!fs.existsSync(csvPath)) {
+    throw new Error(`CSV file not found: ${csvPath}`);
+  }
+
+  let fileContent: string;
+  try {
+    fileContent = fs.readFileSync(csvPath, "utf-8");
+  } catch (err) {
+    throw new Error(`Failed to read CSV file: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  let records: Record<string, string>[];
+  try {
+    records = parse(fileContent, {
+      columns: true,
+      skip_empty_lines: true,
+    });
+  } catch (err) {
+    throw new Error(`Failed to parse CSV: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  if (records.length === 0) {
+    throw new Error("CSV file contains no data rows");
+  }
+
+  const requiredColumns = ["Brand", "Color Name", "Hex"];
+  const firstRow = records[0];
+  const missingColumns = requiredColumns.filter((col) => !(col in firstRow));
+  if (missingColumns.length > 0) {
+    throw new Error(`CSV is missing required columns: ${missingColumns.join(", ")}`);
+  }
+
+  const polishData = records.map((record, index) => {
+    if (!record.Brand || !record["Color Name"] || !record.Hex) {
+      throw new Error(`Row ${index + 1} is missing required fields (Brand, Color Name, or Hex)`);
+    }
+    return {
+      brand: record.Brand,
+      name: record["Color Name"],
+      color: record.Hex,
+      notes: record.Finish ? `Finish: ${record.Finish}` : null,
+    };
   });
 
-  const polishData = records.map((record: any) => ({
-    brand: record.Brand,
-    name: record["Color Name"],
-    color: record.Hex,
-    notes: record.Finish ? `Finish: ${record.Finish}` : null,
-  }));
-
-  // Clear existing to avoid duplicates if that's preferred, 
-  // or just append. I'll append for now as the user didn't specify.
-  // Actually, for a clean import, let's clear first.
   await db.delete(polishes);
-  
   await db.insert(polishes).values(polishData);
 
   console.log(`Imported ${polishData.length} polishes!`);

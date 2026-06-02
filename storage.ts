@@ -23,10 +23,17 @@ export const chatStorage: IChatStorage = {
 
   async createConversation(title: string) {
     const [conversation] = await db.insert(conversations).values({ title }).returning();
+    if (!conversation) {
+      throw new Error("Failed to create conversation: no row returned from insert");
+    }
     return conversation;
   },
 
   async deleteConversation(id: number) {
+    const existing = await db.select().from(conversations).where(eq(conversations.id, id));
+    if (existing.length === 0) {
+      throw new Error(`Conversation with id ${id} not found`);
+    }
     await db.delete(messages).where(eq(messages.conversationId, id));
     await db.delete(conversations).where(eq(conversations.id, id));
   },
@@ -37,6 +44,9 @@ export const chatStorage: IChatStorage = {
 
   async createMessage(conversationId: number, role: string, content: string) {
     const [message] = await db.insert(messages).values({ conversationId, role, content }).returning();
+    if (!message) {
+      throw new Error("Failed to create message: no row returned from insert");
+    }
     return message;
   },
 };
