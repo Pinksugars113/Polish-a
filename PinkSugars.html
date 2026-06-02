@@ -702,7 +702,7 @@ function renderSwatches(){
     sw.className='csw'+(i===0&&selColor===c?' active':'');
     if(selColor.id===c.id) sw.classList.add('active');
     sw.style.background=c.grad; sw.title=c.name;
-    sw.onclick=()=>{ selColor=c; document.querySelectorAll('.csw').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); updatePreview(); };
+    sw.onclick=()=>{ selColor=c; row.querySelectorAll('.csw').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); updatePreview(); };
     row.appendChild(sw);
   });
 }
