@@ -1,9 +1,10 @@
 import { db } from "../server/db";
 import { polishes } from "../shared/schema";
+import { runScript } from "./script-runner";
 
-async function seed() {
+runScript("Seeding", async () => {
   console.log("Seeding database...");
-  
+
   await db.insert(polishes).values([
     {
       brand: "OPI",
@@ -34,14 +35,9 @@ async function seed() {
       name: "Mint Candy Apple",
       color: "#99EDC3",
       notes: "Perfect mint green",
-    }
+    },
   ]);
 
   console.log("Seeding complete!");
   process.exit(0);
-}
-
-seed().catch((err) => {
-  console.error("Seeding failed:", err);
-  process.exit(1);
 });

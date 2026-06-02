@@ -3,8 +3,9 @@ import { polishes } from "../shared/schema";
 import fs from "fs";
 import { parse } from "csv-parse/sync";
 import path from "path";
+import { runScript } from "./script-runner";
 
-async function seed() {
+runScript("Import CSV", async () => {
   console.log("Importing nail polishes from CSV...");
 
   const csvPath = path.join(process.cwd(), "attached_assets/Nail_Polishes_💖_-_Sheet1_1767649926679.csv");
@@ -22,18 +23,9 @@ async function seed() {
     notes: record.Finish ? `Finish: ${record.Finish}` : null,
   }));
 
-  // Clear existing to avoid duplicates if that's preferred, 
-  // or just append. I'll append for now as the user didn't specify.
-  // Actually, for a clean import, let's clear first.
   await db.delete(polishes);
-  
   await db.insert(polishes).values(polishData);
 
   console.log(`Imported ${polishData.length} polishes!`);
   process.exit(0);
-}
-
-seed().catch((err) => {
-  console.error("Import failed:", err);
-  process.exit(1);
 });
