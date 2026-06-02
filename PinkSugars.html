@@ -851,10 +851,10 @@ async function submitPayment(){
   errEl.classList.remove('show');
   if(!name){ errEl.textContent='Please enter the name on your card.'; errEl.classList.add('show'); return; }
   if(!stripe||!cardElement){ errEl.textContent='Payment not configured.'; errEl.classList.add('show'); return; }
-  btn.textContent='Processing…'; btn.disabled=true;
+  btn.innerHTML='Processing…'; btn.disabled=true;
   try{
     const {paymentMethod,error}=await stripe.createPaymentMethod({type:'card',card:cardElement,billing_details:{name}});
-    if(error){ errEl.textContent=error.message; errEl.classList.add('show'); btn.textContent='Pay $'+cart.reduce((s,i)=>s+i.price,0); btn.disabled=false; return; }
+    if(error){ errEl.textContent=error.message; errEl.classList.add('show'); btn.innerHTML='Pay <span id="payBtnAmt">$'+cart.reduce((s,i)=>s+i.price,0)+'</span>'; btn.disabled=false; return; }
     const user=window._currentUser;
     const total=cart.reduce((s,i)=>s+i.price,0);
     try{
@@ -867,7 +867,7 @@ async function submitPayment(){
     }catch(e){ console.warn('Firestore:',e); }
     cart=[]; syncCart(); closeModal('payModal');
     toast('Order placed! Thank you ♡');
-  }catch(e){ errEl.textContent='Payment failed. Please try again.'; errEl.classList.add('show'); btn.textContent='Pay $'+cart.reduce((s,i)=>s+i.price,0); btn.disabled=false; }
+  }catch(e){ errEl.textContent='Payment failed. Please try again.'; errEl.classList.add('show'); btn.innerHTML='Pay <span id="payBtnAmt">$'+cart.reduce((s,i)=>s+i.price,0)+'</span>'; btn.disabled=false; }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -990,7 +990,7 @@ function addColor(){
 function deleteColor(i){
   const name=COLORS[i].name;
   COLORS.splice(i,1);
-  if(selColor===COLORS[i]||!COLORS.includes(selColor)) selColor=COLORS[0];
+  if(!COLORS.length || !COLORS.includes(selColor)) selColor=COLORS[0];
   renderSwatches(); updatePreview();
   devPanelPolishes(document.getElementById('devPanel'));
   toast(`"${name}" removed`);
