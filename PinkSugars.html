@@ -748,7 +748,7 @@ function updatePreview(){
     let overlay=n.querySelector('.nail-design-overlay');
     if(designClass){ if(!overlay){overlay=document.createElement('div');overlay.className='nail-design-overlay';n.appendChild(overlay);} }
     else if(overlay){ overlay.remove(); }
-    if(isFrench && overlay){ overlay.style.background=`linear-gradient(to top,${selColor.hex||selColor.grad} 0%,${selColor.hex||selColor.grad} 28%,transparent 28%)`; }
+    if(isFrench && overlay){ const tc=selColor.hex||selColor.grad; overlay.style.background=`radial-gradient(ellipse 140% 80% at 50% -20%, transparent 64%, ${tc} 65%)`; }
     else if(isPolka && overlay){ const dc=dotColor?dotColor.hex:'#FFFFFF'; overlay.style.background=`radial-gradient(circle 3px,${dc} 70%,transparent 70%) 5px 5px/10px 10px`; }
     else if(overlay){ overlay.style.background=''; }
   }
