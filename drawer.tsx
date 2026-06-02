@@ -4,6 +4,11 @@ import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@/lib/utils"
+import {
+  OVERLAY_CLASSES,
+  MODAL_TITLE_CLASSES,
+  MODAL_DESCRIPTION_CLASSES,
+} from "@/lib/overlay-styles"
 
 const Drawer = ({
   shouldScaleBackground = true,
@@ -28,7 +33,7 @@ const DrawerOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-black/80", className)}
+    className={cn(OVERLAY_CLASSES, className)}
     {...props}
   />
 ))
@@ -83,10 +88,7 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn(
-      "text-lg font-semibold leading-none tracking-tight",
-      className
-    )}
+    className={cn(MODAL_TITLE_CLASSES, className)}
     {...props}
   />
 ))
@@ -98,7 +100,7 @@ const DrawerDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn(MODAL_DESCRIPTION_CLASSES, className)}
     {...props}
   />
 ))
